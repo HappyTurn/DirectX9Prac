@@ -3,8 +3,8 @@
 int CLight::index = 0;
 
 CLight::CLight() {
+	CDirectXLib();
 	ZeroMemory(&this->_light, sizeof(D3DLIGHT9));
-	this->_device = GetDevice();
 	// デフォルト設定
 	this->_light.Type = D3DLIGHT_DIRECTIONAL;
 	this->_light.Diffuse.r = 1.0f;
@@ -16,7 +16,7 @@ CLight::CLight() {
 	this->_light.Range = 1000.0f;
 	this->_id = this->index;
 	this->index++;
-	this->_device->LightEnable(this->_id, TRUE);
+	this->getDevice()->LightEnable(this->_id, TRUE);
 	std::cout << this->_id << std::endl;
 	
 }
@@ -26,9 +26,9 @@ CLight::~CLight() {
 }
 
 void CLight::light() {
-	this->_device->SetLight(this->_id, &_light);
-	this->_device->SetRenderState(D3DRS_LIGHTING, TRUE);
-	this->_device->SetRenderState(D3DRS_AMBIENT, 0x00202020);
+	this->getDevice()->SetLight(this->_id, &_light);
+	this->getDevice()->SetRenderState(D3DRS_LIGHTING, TRUE);
+	this->getDevice()->SetRenderState(D3DRS_AMBIENT, 0x00202020);
 }
 
 void CLight::setLightType(D3DLIGHTTYPE type) {
@@ -50,9 +50,9 @@ void CLight::setRange(float range) {
 }
 
 void CLight::turnOn() {
-	this->_device->LightEnable(this->_id, TRUE);
+	this->getDevice()->LightEnable(this->_id, TRUE);
 }
 
 void CLight::turnOff() {
-	this->_device->LightEnable(this->_id, FALSE);
+	this->getDevice()->LightEnable(this->_id, FALSE);
 }
