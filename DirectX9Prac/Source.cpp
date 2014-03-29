@@ -25,9 +25,9 @@
 #include <strsafe.h>
 #pragma warning( default : 4996 ) 
 
+#include "CLight.h"
 
-
-
+CLight* myLight;
 
 
 
@@ -198,28 +198,9 @@ VOID SetupLights()
 	mtrl.Diffuse.a = mtrl.Ambient.a = 1.0f;
 	g_pd3dDevice->SetMaterial(&mtrl);
 
-	// Set up a white, directional light, with an oscillating direction.
-	// Note that many lights may be active at a time (but each one slows down
-	// the rendering of our scene). However, here we are just using one. Also,
-	// we need to set the D3DRS_LIGHTING renderstate to enable lighting
-	D3DXVECTOR3 vecDir;
-	D3DLIGHT9 light;
-	ZeroMemory(&light, sizeof(D3DLIGHT9));
-	light.Type = D3DLIGHT_DIRECTIONAL;
-	light.Diffuse.r = 1.0f;
-	light.Diffuse.g = 1.0f;
-	light.Diffuse.b = 1.0f;
-	vecDir = D3DXVECTOR3(cosf(timeGetTime() / 350.0f),
-		1.0f,
-		sinf(timeGetTime() / 350.0f));
-	D3DXVec3Normalize((D3DXVECTOR3*)&light.Direction, &vecDir);
-	light.Range = 1000.0f;
-	g_pd3dDevice->SetLight(0, &light);
-	g_pd3dDevice->LightEnable(0, TRUE);
-	g_pd3dDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
+	myLight = new CLight();
+	myLight->light();
 
-	// Finally, turn on some ambient light.
-	g_pd3dDevice->SetRenderState(D3DRS_AMBIENT, 0x00202020);
 }
 
 
@@ -249,6 +230,7 @@ VOID Render()
 		g_pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
 		g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2 * 50 - 2);
 
+
 		// End the scene
 		g_pd3dDevice->EndScene();
 	}
@@ -268,6 +250,16 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
+	case WM_KEYDOWN:
+		switch ((CHAR)wParam) {
+		case VK_LEFT:
+			myLight->turnOff();
+			break;
+		case VK_RIGHT:
+			myLight->turnOn();
+			break;
+		}
+		break;
 	case WM_DESTROY:
 		Cleanup();
 		PostQuitMessage(0);
@@ -329,3 +321,7 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, INT)
 
 
 
+LPDIRECT3DDEVICE9 GetDevice(void)
+{
+	return g_pd3dDevice;
+}
