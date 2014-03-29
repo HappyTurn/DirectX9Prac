@@ -5,8 +5,10 @@
 
 #include <d3dx9.h>
 #include <windows.h>
+#include <iostream>
 
 LPDIRECT3DDEVICE9 GetDevice(void);
+void printMessage(char* str);
 
 class CLight {
 	
@@ -15,8 +17,8 @@ public:
 	~CLight();
 	void light();
 	void setLightType(D3DLIGHTTYPE type);
-	void updateDir(D3DXVECTOR3* vec);
-	void setDir(D3DXVECTOR3* vec);
+	void updateDir(D3DXVECTOR3 vec);
+	void setDir(D3DXVECTOR3 vec);
 	void setRange(float range);
 	void turnOn();
 	void turnOff();

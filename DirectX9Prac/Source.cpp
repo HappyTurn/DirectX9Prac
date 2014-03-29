@@ -24,10 +24,16 @@
 #pragma warning( disable : 4996 ) // disable deprecated warning 
 #include <strsafe.h>
 #pragma warning( default : 4996 ) 
+#include <iostream>
 
 #include "CLight.h"
 
+
+using namespace std;
+
 CLight* myLight;
+CLight* myLight2;
+HRESULT InitAll();
 
 
 
@@ -197,10 +203,6 @@ VOID SetupLights()
 	mtrl.Diffuse.b = mtrl.Ambient.b = 0.0f;
 	mtrl.Diffuse.a = mtrl.Ambient.a = 1.0f;
 	g_pd3dDevice->SetMaterial(&mtrl);
-
-	myLight = new CLight();
-	myLight->light();
-
 }
 
 
@@ -221,6 +223,7 @@ VOID Render()
 	{
 		// Setup the lights and materials
 		SetupLights();
+		myLight->light();
 
 		// Setup the world, view, and projection matrices
 		SetupMatrices();
@@ -278,6 +281,13 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 //-----------------------------------------------------------------------------
 INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, INT)
 {
+
+	//コンソールを使えるように
+	AllocConsole();
+	freopen("CONOUT$", "w", stdout);
+	freopen("CONIN$","r",stdin);
+	cout << "Hello!" << endl;
+
 	// Register the window class
 	WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, MsgProc, 0L, 0L,
 		GetModuleHandle(NULL), NULL, NULL, NULL, NULL,
@@ -295,6 +305,7 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, INT)
 		// Create the geometry
 		if (SUCCEEDED(InitGeometry()))
 		{
+			InitAll();
 			// Show the window
 			ShowWindow(hWnd, SW_SHOWDEFAULT);
 			UpdateWindow(hWnd);
@@ -320,8 +331,19 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, INT)
 }
 
 
+HRESULT InitAll() {
+	myLight = new CLight();
+	myLight2 = new CLight();
+	myLight2->turnOff();
+	return S_OK;
+}
+
 
 LPDIRECT3DDEVICE9 GetDevice(void)
 {
 	return g_pd3dDevice;
+}
+
+void printMessage(char* str) {
+	cout << str << endl;
 }

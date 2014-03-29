@@ -10,12 +10,15 @@ CLight::CLight() {
 	this->_light.Diffuse.r = 1.0f;
 	this->_light.Diffuse.g = 1.0f;
 	this->_light.Diffuse.b = 1.0f;
-	D3DXVECTOR3* defaultVec = new D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-	this->_dir = *defaultVec;
+	D3DXVECTOR3 defaultVec =  D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+	this->_dir = defaultVec;
 	D3DXVec3Normalize((D3DXVECTOR3*)&this->_light.Direction, &this->_dir);
 	this->_light.Range = 1000.0f;
 	this->_id = this->index;
 	this->index++;
+	this->_device->LightEnable(this->_id, TRUE);
+	std::cout << this->_id << std::endl;
+	
 }
 
 CLight::~CLight() {
@@ -23,8 +26,7 @@ CLight::~CLight() {
 }
 
 void CLight::light() {
-	this->_device->SetLight(0, &_light);
-	this->_device->LightEnable(0, TRUE);
+	this->_device->SetLight(this->_id, &_light);
 	this->_device->SetRenderState(D3DRS_LIGHTING, TRUE);
 	this->_device->SetRenderState(D3DRS_AMBIENT, 0x00202020);
 }
@@ -33,13 +35,13 @@ void CLight::setLightType(D3DLIGHTTYPE type) {
 	this->_light.Type = type;
 }
 
-void CLight::setDir(D3DXVECTOR3* vec) {
-	this->_dir = *vec;
+void CLight::setDir(D3DXVECTOR3 vec) {
+	this->_dir = vec;
 	D3DXVec3Normalize((D3DXVECTOR3*)&_light.Direction, &_dir);
 }
 
-void CLight::updateDir(D3DXVECTOR3* vec) {
-	this->_dir += *vec;
+void CLight::updateDir(D3DXVECTOR3 vec) {
+	this->_dir += vec;
 	D3DXVec3Normalize((D3DXVECTOR3*)&_light.Direction, &_dir);
 }
 
@@ -48,9 +50,9 @@ void CLight::setRange(float range) {
 }
 
 void CLight::turnOn() {
-	this->_isLight = true;
+	this->_device->LightEnable(this->_id, TRUE);
 }
 
 void CLight::turnOff() {
-	this->_isLight = false;
+	this->_device->LightEnable(this->_id, FALSE);
 }
