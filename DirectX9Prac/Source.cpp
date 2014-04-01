@@ -27,12 +27,14 @@
 #include <iostream>
 
 #include "CLight.h"
+#include "CCamera.h"
 
 
 using namespace std;
 
 CLight* myLight;
 CLight* myLight2;
+CCamera* myCamera;
 HRESULT InitAll();
 
 
@@ -167,12 +169,13 @@ VOID SetupMatrices()
 	// a point to lookat, and a direction for which way is up. Here, we set the
 	// eye five units back along the z-axis and up three units, look at the
 	// origin, and define "up" to be in the y-direction.
-	D3DXVECTOR3 vEyePt(0.0f, 3.0f, -5.0f);
-	D3DXVECTOR3 vLookatPt(0.0f, 0.0f, 0.0f);
-	D3DXVECTOR3 vUpVec(0.0f, 1.0f, 0.0f);
-	D3DXMATRIXA16 matView;
-	D3DXMatrixLookAtLH(&matView, &vEyePt, &vLookatPt, &vUpVec);
-	g_pd3dDevice->SetTransform(D3DTS_VIEW, &matView);
+
+	//D3DXVECTOR3 vEyePt(0.0f, 3.0f, -5.0f);
+	//D3DXVECTOR3 vLookatPt(0.0f, 0.0f, 0.0f);
+	//D3DXVECTOR3 vUpVec(0.0f, 1.0f, 0.0f);
+	//D3DXMATRIXA16 matView;
+	//D3DXMatrixLookAtLH(&matView, &vEyePt, &vLookatPt, &vUpVec);
+	//g_pd3dDevice->SetTransform(D3DTS_VIEW, &matView);
 
 	// For the projection matrix, we set up a perspective transform (which
 	// transforms geometry from 3D view space to 2D viewport space, with
@@ -225,6 +228,8 @@ VOID Render()
 		SetupLights();
 		myLight->light();
 
+		myCamera->view();
+
 		// Setup the world, view, and projection matrices
 		SetupMatrices();
 
@@ -256,10 +261,16 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_KEYDOWN:
 		switch ((CHAR)wParam) {
 		case VK_LEFT:
-			myLight->turnOff();
+			myCamera->updateLocation(D3DXVECTOR3(-0.3f, 0.0f, 0.0f));
 			break;
 		case VK_RIGHT:
+			myCamera->updateLocation(D3DXVECTOR3(0.3f, 0.0f, 0.0f));
+			break;
+		case VK_UP:
 			myLight->turnOn();
+			break;
+		case VK_DOWN:
+			myLight->turnOff();
 			break;
 		}
 		break;
@@ -335,6 +346,7 @@ HRESULT InitAll() {
 	myLight = new CLight();
 	myLight2 = new CLight();
 	myLight2->turnOff();
+	myCamera = new CCamera();
 	return S_OK;
 }
 
