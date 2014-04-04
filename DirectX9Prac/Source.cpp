@@ -26,16 +26,21 @@
 #pragma warning( default : 4996 ) 
 #include <iostream>
 
+
 #include "CLight.h"
 #include "CCamera.h"
-
+#include "CModel.h"
 
 using namespace std;
 
 CLight* myLight;
 CLight* myLight2;
 CCamera* myCamera;
+CModel* myModel;
+
 HRESULT InitAll();
+
+
 
 
 
@@ -161,28 +166,13 @@ VOID SetupMatrices()
 {
 	// Set up world matrix
 	D3DXMATRIXA16 matWorld;
+
 	D3DXMatrixIdentity(&matWorld);
-	D3DXMatrixRotationX(&matWorld, timeGetTime() / 500.0f);
+
+	D3DXMatrixRotationY(&matWorld, timeGetTime() / 500.0f);
+
 	g_pd3dDevice->SetTransform(D3DTS_WORLD, &matWorld);
-
-	// Set up our view matrix. A view matrix can be defined given an eye point,
-	// a point to lookat, and a direction for which way is up. Here, we set the
-	// eye five units back along the z-axis and up three units, look at the
-	// origin, and define "up" to be in the y-direction.
-
-	//D3DXVECTOR3 vEyePt(0.0f, 3.0f, -5.0f);
-	//D3DXVECTOR3 vLookatPt(0.0f, 0.0f, 0.0f);
-	//D3DXVECTOR3 vUpVec(0.0f, 1.0f, 0.0f);
-	//D3DXMATRIXA16 matView;
-	//D3DXMatrixLookAtLH(&matView, &vEyePt, &vLookatPt, &vUpVec);
-	//g_pd3dDevice->SetTransform(D3DTS_VIEW, &matView);
-
-	// For the projection matrix, we set up a perspective transform (which
-	// transforms geometry from 3D view space to 2D viewport space, with
-	// a perspective divide making objects smaller in the distance). To build
-	// a perpsective transform, we need the field of view (1/4 pi is common),
-	// the aspect ratio, and the near and far clipping planes (which define at
-	// what distances geometry should be no longer be rendered).
+	
 	D3DXMATRIXA16 matProj;
 	D3DXMatrixPerspectiveFovLH(&matProj, D3DX_PI / 4, 1.0f, 1.0f, 100.0f);
 	g_pd3dDevice->SetTransform(D3DTS_PROJECTION, &matProj);
@@ -226,9 +216,13 @@ VOID Render()
 	{
 		// Setup the lights and materials
 		SetupLights();
+
 		myLight->light();
 
 		myCamera->view();
+
+		myModel->draw();
+
 
 		// Setup the world, view, and projection matrices
 		SetupMatrices();
@@ -236,7 +230,7 @@ VOID Render()
 		// Render the vertex buffer contents
 		g_pd3dDevice->SetStreamSource(0, g_pVB, 0, sizeof(CUSTOMVERTEX));
 		g_pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
-		g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2 * 50 - 2);
+		//g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2 * 50 - 2);
 
 
 		// End the scene
@@ -262,15 +256,23 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		switch ((CHAR)wParam) {
 		case VK_LEFT:
 			myCamera->updateLocation(D3DXVECTOR3(-0.3f, 0.0f, 0.0f));
+			myCamera->updateLookAt(D3DXVECTOR3(-0.3f, 0.0f, 0.0f));
 			break;
 		case VK_RIGHT:
 			myCamera->updateLocation(D3DXVECTOR3(0.3f, 0.0f, 0.0f));
+			myCamera->updateLookAt(D3DXVECTOR3(0.3f, 0.0f, 0.0f));
 			break;
 		case VK_UP:
 			myLight->turnOn();
 			break;
 		case VK_DOWN:
 			myLight->turnOff();
+			break;
+		case VK_NUMPAD4:
+			myModel->updatePosition(D3DXVECTOR3(-0.1f, 0.0f, 0.0f));
+			break;
+		case VK_NUMPAD6:
+			myModel->updatePosition(D3DXVECTOR3(0.1f, 0.0f, 0.0f));
 			break;
 		}
 		break;
@@ -347,6 +349,9 @@ HRESULT InitAll() {
 	myLight2 = new CLight();
 	myLight2->turnOff();
 	myCamera = new CCamera();
+
+	myModel = new CModel(L"tiger.x");
+
 	return S_OK;
 }
 
